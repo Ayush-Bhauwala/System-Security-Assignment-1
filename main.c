@@ -349,6 +349,89 @@ int hasNameinPassword(char password[25], char username[100])
     }
 }
 
+int checkDOB(char password[25], char username[100])
+{
+    char correctdob[10];
+    FILE *f = fopen("masterfile.txt", "r");
+    if (f == NULL)
+    {
+        printf("\nERROR: Not able to open master file.\n");
+        exit(1);
+    }
+    char username_checked[100];
+    char date_of_birth[11];
+    char password_file[11];
+    fscanf(f, "%*[^\n]\n");
+    while (fscanf(f, "%s %s %s", username_checked, date_of_birth, password_file) == 3)
+    {
+        if (strcmp(username_checked, username) == 0)
+        {
+            // printf("date of birth %s \n", date_of_birth);
+            int j = 0;
+            for (int i = 0; i < strlen(date_of_birth); i++)
+            {
+                if (date_of_birth[i] != '-')
+                {
+                    correctdob[j] = date_of_birth[i];
+                    // printf("appending correctdob %c\n", correctdob[i]);
+                    j++;
+                }
+            }
+            correctdob[10] = '\0';
+            fclose(f);
+            // return 1;
+        }
+    }
+
+    // printf("Correct DOB: %s\n", correctdob);
+
+    for (int i = 0; i < strlen(password); i++)
+    {
+        if (isdigit(password[i]))
+        {
+            for (int j = 0; j < strlen(correctdob); j++)
+            {
+                if (password[i] == correctdob[j])
+                {
+                    int count = 1;
+                    int k = 1;
+                    while (i + k < strlen(password) && j + k < strlen(correctdob))
+                    {
+
+                        if (password[i + k] == correctdob[j + k])
+                        {
+                            count++;
+                        }
+                        k++;
+                    }
+                    // if(count >= 4){
+                    //     return 0;
+                    // }
+                    if (count >= 4)
+                    {
+                        return count;
+                    }
+                }
+            }
+        }
+        // return 0;
+    }
+
+    return 0;
+}
+
+int hasNumInPass(char password[25])
+{
+    for (int i = 0; i < strlen(password); i++)
+    {
+        if (isdigit(password[i]))
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int checkValidPassword(char password[25], int attempt_ctr, char username[100])
 {
     int is_valid_password = 1;
@@ -377,7 +460,15 @@ int checkValidPassword(char password[25], int attempt_ctr, char username[100])
         printf("Password does not contain at least one lowecase letter.\n");
     }
 
-    // TODO R4
+    if (hasNumInPass(password) == 0)
+    {
+        if (is_valid_password != 0)
+        {
+            is_valid_password = 0;
+            printf("Attempt %d failed.\n", attempt_ctr);
+        }
+        printf("Password does not contain at least one digit.\n");
+    }
 
     if (hasSpecialCharacter(password) == 0)
     {
@@ -414,6 +505,16 @@ int checkValidPassword(char password[25], int attempt_ctr, char username[100])
     }
 
     // TODO R8
+    int dobviol = checkDOB(password, username);
+    if (dobviol != 0)
+    {
+        if (is_valid_password != 0)
+        {
+            is_valid_password = 0;
+            printf("Attempt %d failed.\n", attempt_ctr);
+        }
+        printf("Password contains %d digits consecutively similar to the date of birth.\n", dobviol);
+    }
 
     return is_valid_password;
 }
