@@ -420,6 +420,75 @@ int checkDOB(char password[25], char username[100])
     return 0;
 }
 
+int checkCommonConsecChars(char password[25], char username[100])
+{
+    char a = username[0];
+    int j = 0;
+    while (username[j] != '.')
+    {
+        j++;
+    }
+    char b = username[j + 1];
+
+    // declare string named xypass.txt
+
+    // for (int i = 0; i < strlen(password); i++)
+    // {
+    //     password[i] = toupper(password[i]);
+    // }
+    char filename[20] = "xypass.txt";
+    filename[0] = a;
+    filename[1] = b;
+    FILE *f = fopen(filename, "r");
+    if (f == NULL)
+    {
+        printf("\nERROR: Not able to open password file.\n");
+        exit(1);
+    }
+    char password_check[100];
+    // char date_of_birth[11];
+    // char password_file[11];
+    // fscanf(f, "%*[^\n]\n");
+    while (fscanf(f, "%s", password_check) == 1)
+    {
+
+        // for (int i = 0; i < strlen(password_check); i++)
+        // {
+        //     password_check[i] = toupper(password_check[i]);
+        // }
+
+        for (int i = 0; i < strlen(password_check); i++)
+        {
+            for (int j = 0; j < strlen(password); j++)
+            {
+                if (toupper(password_check[i]) == toupper(password[j]))
+                {
+                    int count = 1;
+                    int k = 1;
+                    while (i + k < strlen(password_check) && j + k < strlen(password))
+                    {
+                        if (toupper(password_check[i + k]) == toupper(password[j + k]))
+                        {
+                            count++;
+                            k++;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    if (count >= 5)
+                    {
+                        return count;
+                    }
+                }
+            }
+        }
+    }
+
+    return 0;
+}
+
 int hasNumInPass(char password[25])
 {
     for (int i = 0; i < strlen(password); i++)
@@ -481,6 +550,16 @@ int checkValidPassword(char password[25], int attempt_ctr, char username[100])
     }
 
     // TODO R6
+    int consecChars = checkCommonConsecChars(password, username);
+    if (consecChars != 0)
+    {
+        if (is_valid_password != 0)
+        {
+            is_valid_password = 0;
+            printf("Attempt %d failed.\n", attempt_ctr);
+        }
+        printf("Password contains %d consecutive characters similar to one of the past 10 passwords.\n", consecChars);
+    }
 
     int name_in_password = hasNameinPassword(password, username);
     if (name_in_password != 0)
@@ -504,7 +583,6 @@ int checkValidPassword(char password[25], int attempt_ctr, char username[100])
         }
     }
 
-    // TODO R8
     int dobviol = checkDOB(password, username);
     if (dobviol != 0)
     {
