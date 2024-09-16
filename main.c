@@ -139,9 +139,8 @@ void wait_counter(int seconds)
 {
     while (seconds > 0)
     {
-        printf("Wait for ");
-        printf("%d seconds...\n", seconds);
-
+        printf("Wait for %d seconds...\r", seconds);
+        fflush(stdout);
         clock_t stop = clock() + CLOCKS_PER_SEC;
         while (clock() < stop)
         {
@@ -202,7 +201,10 @@ void updatePasswordFile(char new_password[25], char username_to_update[100])
                 if (passwords[i] == '\r' || passwords[i] == '\n')
                 {
                     old_password[index] = '\0';
-                    fprintf(file_pass, "%s\n", old_password);
+                    if (pass_count == 9)
+                        fprintf(file_pass, "%s", old_password);
+                    else
+                        fprintf(file_pass, "%s\n", old_password);
                     memset(old_password, 0, sizeof(old_password));
                     pass_count++;
                     index = 0;
@@ -216,7 +218,7 @@ void updatePasswordFile(char new_password[25], char username_to_update[100])
             if (pass_count < 10)
             {
                 old_password[index] = '\0';
-                fprintf(file_pass, "%s\n", old_password);
+                fprintf(file_pass, "%s", old_password);
             }
 
             fclose(file_pass);
@@ -279,8 +281,8 @@ int hasSpecialCharacter(char string[25])
 
 int checkNameInPassword(char password[25], char name[50])
 {
-    int name_len = strlen(name);
-    for (int i = 0; i <= strlen(password) - name_len; i++)
+    int name_len = (int)strlen(name);
+    for (int i = 0; i <= ((int)strlen(password) - name_len); i++)
     {
         int check = 1;
         for (int j = 0; j < name_len; j++)
