@@ -351,7 +351,7 @@ int hasNameinPassword(char password[25], char username[100])
 
 int checkDOB(char password[25], char username[100])
 {
-    char correctdob[10];
+    char correctdob[9];
     FILE *f = fopen("masterfile.txt", "r");
     if (f == NULL)
     {
@@ -377,7 +377,7 @@ int checkDOB(char password[25], char username[100])
                     j++;
                 }
             }
-            correctdob[10] = '\0';
+            correctdob[8] = '\0';
             fclose(f);
             // return 1;
         }
@@ -549,7 +549,6 @@ int checkValidPassword(char password[25], int attempt_ctr, char username[100])
         printf("Password does not contain at least one of the allowed special characters.\n");
     }
 
-    // TODO R6
     int consecChars = checkCommonConsecChars(password, username);
     if (consecChars != 0)
     {
